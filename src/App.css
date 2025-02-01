@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.ant-input-password-icon {
+    color: #000 !important; /* Nero fisso */
+}

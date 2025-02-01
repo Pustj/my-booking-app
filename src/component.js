@@ -8,7 +8,7 @@ function UsersList() {
 
   useEffect(() => {
 
-    fetch('http://localhost:8080/api/users')
+    fetch('http://localhost:8080/BookingRooms/api/v1/users')
 
       .then(response => response.json())
 
