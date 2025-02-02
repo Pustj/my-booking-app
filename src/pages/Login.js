@@ -1,8 +1,6 @@
 import React from 'react';
 import { Button, Checkbox, Form, Input, ConfigProvider} from 'antd';
-import { useAuth } from "../AuthContext";
-import { useNavigate } from "react-router-dom";
-import '../App.css'
+import '../Deseo.css'
 
 
 const onFinishFailed = (errorInfo) => {

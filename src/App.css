@@ -40,3 +40,6 @@
 .ant-input-password-icon {
     color: #000 !important; /* Nero fisso */
 }
+.ant-menu .ant-menu-sub .ant-menu-inline {
+    background: #1E0407
+}

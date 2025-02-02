@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import PrivateRoute from "../PrivateRoute";
+import UserForm from "../components/UserForm";
+import UserTable from "../components/UserTable";
 import { AuthProvider, useAuth } from '../AuthContext';
+import {jwtDecode} from 'jwt-decode';
+import '../Deseo.css';
 
 import {
   DashboardOutlined,
@@ -9,28 +13,69 @@ import {
   MenuUnfoldOutlined,
   CarryOutOutlined,
   UserOutlined,
+  UserAddOutlined,
+  BorderlessTableOutlined,
   BorderOutlined,
   LogoutOutlined,
 } from '@ant-design/icons';
 
-import UsersList from '../component';
 
 import { Button, Layout, Menu, theme, ConfigProvider } from 'antd';
 
 const { Header, Sider, Content } = Layout;
 
+//Debug contenuto Token JWT
+/*const token = localStorage.getItem("authToken"); // Assicurati che il token venga memorizzato correttamente
+if (token) {
+  const decodedToken = jwtDecode(token);
+ for (const key in decodedToken) {
+   if (Object.hasOwnProperty.call(decodedToken, key)) {
+     console.log(`${key}: ${decodedToken[key]}`);
+   }
+ }
+ // Verifica se il nome utente è presente
+}*/
 const Home: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const handleLogout = () => {
-    logout(); // Chiama la funzione logout
-    navigate("/login"); // Reindirizza alla pagina di login
-  };
- const { logout } = useAuth(); // Accedi al metodo logout dal contesto
-  const navigate = useNavigate(); // Hook di React Router per la navigazione
-  const {
 
+const { logout } = useAuth();
+const navigate = useNavigate();
+
+const [collapsed, setCollapsed] = useState(false);
+const [userName, setUserName] = useState("Anonimo");
+
+useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      console.error("Token non trovato. Reindirizzamento al login.");
+      navigate("/login", { replace: true }); // Usa navigate con `replace` per evitare loop
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode(token); // Decodifica il token
+      setUserName(decoded?.sub || "Anonimo"); // Aggiorna lo stato con il valore decodificato
+      //console.log("Token decodificato correttamente:", decoded);
+    } catch (err) {
+      console.error("Token non valido:", err.message);
+      navigate("/login", { replace: true }); // Reindirizza se il token è invalido
+    }
+  }, [navigate]);
+
+
+const handleUserDetail = () => {
+    console.log("Mostra dettagli user")
+};
+
+const handleLogout = async () => { // Dichiarata come async
+  await logout(); // Ora puoi utilizzare await senza problemi
+  navigate("/login"); // Reindirizza dopo che logout è completato
+};
+
+
+const {
     token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+} = theme.useToken();
 
   return (
       <div>
@@ -42,7 +87,8 @@ const Home: React.FC = () => {
             theme={{
                 token: {
                     colorPrimary: '#FDB84F',
-                    siderBg: '#1E0407'  // Colore di sfondo base
+                    siderBg: '#1E0407',
+                    darkItemBg: '#1E0407',
                   },
                 }}
         >
@@ -51,7 +97,6 @@ const Home: React.FC = () => {
             <Menu
               theme="dark"
               style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#1E0407' }}
-
               mode="inline"
               defaultSelectedKeys={['1']}
               items={[
@@ -63,17 +108,33 @@ const Home: React.FC = () => {
                {
                   key: '2',
                   icon: <UserOutlined />,
-                  label: <Link to="/users">Utenti</Link>,
+                  label: "Utenti",
+                  children: [
+                        { key: '21', label: <Link to="/users">Gestisci utenti</Link>, icon: <BorderlessTableOutlined /> },
+                        { key: '22', label: <Link to="/create/user">Crea utente</Link>, icon: <UserAddOutlined /> },
+                  ],
                 },
                 {
                   key: '3',
                   icon: <BorderOutlined />,
-                  label: <Link to="/rooms">Stanze</Link>,
+                  label: "Stanze",
+                  children: [
+                        { key: '31', label: 'Option 5' },
+                        { key: '32', label: 'Option 6' },
+                        { key: '33', label: 'Option 7' },
+                        { key: '34', label: 'Option 8' },
+                  ],
                 },
                 {
                   key: '4',
                   icon: <CarryOutOutlined />,
-                  label: <Link to="/reservations">Prenotazioni</Link>,
+                  label: "Prenotazioni",
+                  children: [
+                        { key: '41', label: 'Option 5' },
+                        { key: '42', label: 'Option 6' },
+                        { key: '43', label: 'Option 7' },
+                        { key: '44', label: 'Option 8' },
+                  ],
                 },
 
               ]}
@@ -89,17 +150,23 @@ const Home: React.FC = () => {
                 style={{
                   fontSize: '16px',
                   width: 64,
-                  height: 64,
+                  height: 40,
                 }}
               />
 
-             <Button
-               type="text"
-               onClick={handleLogout}
-               icon={<LogoutOutlined />}
-             >
-               Logout
-             </Button>
+             <div style={{ display: 'flex', gap: '15px' }}>
+                 <Button type="text" onClick={handleUserDetail}>
+                   {userName}
+                 </Button>
+                 <Button
+                   type="text"
+                   onClick={handleLogout}
+                   icon={<LogoutOutlined />}
+                 >
+                   Logout
+                 </Button>
+               </div>
+
 
             </Header>
 
@@ -115,9 +182,11 @@ const Home: React.FC = () => {
             >
             <AuthProvider>
                 <Routes>
-                  <Route path="/users" element={<PrivateRoute><UsersList /></PrivateRoute>} />
-                  <Route path="/rooms" element={<PrivateRoute><UsersList /></PrivateRoute>} />
-                  <Route path="/reservations" element={<PrivateRoute><UsersList /></PrivateRoute>} />
+                  <Route path="/users" element={<PrivateRoute><UserTable /></PrivateRoute>} />
+                  <Route path="/create/user" element={<PrivateRoute><UserForm /></PrivateRoute>} />
+                  <Route path="/update/user" element={<PrivateRoute><UserForm /></PrivateRoute>} />
+                  <Route path="/rooms" element={<PrivateRoute><UserTable /></PrivateRoute>} />
+                  <Route path="/reservations" element={<PrivateRoute><UserTable /></PrivateRoute>} />
                 </Routes>
             </AuthProvider>
             </Content>

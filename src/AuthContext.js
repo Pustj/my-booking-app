@@ -21,9 +21,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    setAuthToken(null);
-    localStorage.removeItem("authToken");
-  };
+      if (!authToken) {
+        console.info("Nessun utente autenticato.");
+      }
+      setAuthToken(null); // Resetta lo stato
+      localStorage.removeItem("authToken"); // Rimuove il token
+    };
+
 
   const isAuthenticated = !!authToken;
 
@@ -34,11 +38,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook personalizzato per utilizzare il contesto
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth deve essere utilizzato all'interno di AuthProvider.");
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
+
