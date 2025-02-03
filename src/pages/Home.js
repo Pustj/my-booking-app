@@ -1,8 +1,11 @@
 import React, { useState,useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import PrivateRoute from "../PrivateRoute";
-import UserForm from "../components/UserForm";
-import UserTable from "../components/UserTable";
+import UserForm from "../components/user/UserForm";
+import RoomForm from "../components/room/RoomForm";
+import UserTable from "../components/user/UserTable";
+import RoomTable from "../components/room/RoomTable";
+import Dashboard from "../pages/Dashboard";
 import { AuthProvider, useAuth } from '../AuthContext';
 import {jwtDecode} from 'jwt-decode';
 import '../Deseo.css';
@@ -17,6 +20,7 @@ import {
   BorderlessTableOutlined,
   BorderOutlined,
   LogoutOutlined,
+  AppstoreAddOutlined,
 } from '@ant-design/icons';
 
 
@@ -96,7 +100,7 @@ const {
             <img className="demo-logo-vertical" alt="logo" src="/assets/deseo-logo-1500x430-full-transp-alt9.webp" style={{ width: '100%', height: 'auto' }}/>
             <Menu
               theme="dark"
-              style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#1E0407' }}
+              style={{  display: 'flex', flexDirection: 'column', background: '#1E0407' }}
               mode="inline"
               defaultSelectedKeys={['1']}
               items={[
@@ -119,10 +123,8 @@ const {
                   icon: <BorderOutlined />,
                   label: "Stanze",
                   children: [
-                        { key: '31', label: 'Option 5' },
-                        { key: '32', label: 'Option 6' },
-                        { key: '33', label: 'Option 7' },
-                        { key: '34', label: 'Option 8' },
+                        { key: '31', label: <Link to="/rooms">Stanze</Link>, icon: <BorderlessTableOutlined /> },
+                        { key: '32', label: <Link to="/create/room">Crea stanza</Link>, icon: <AppstoreAddOutlined /> },
                   ],
                 },
                 {
@@ -182,10 +184,13 @@ const {
             >
             <AuthProvider>
                 <Routes>
+                  <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
                   <Route path="/users" element={<PrivateRoute><UserTable /></PrivateRoute>} />
                   <Route path="/create/user" element={<PrivateRoute><UserForm /></PrivateRoute>} />
                   <Route path="/update/user" element={<PrivateRoute><UserForm /></PrivateRoute>} />
-                  <Route path="/rooms" element={<PrivateRoute><UserTable /></PrivateRoute>} />
+                  <Route path="/rooms" element={<PrivateRoute><RoomTable /></PrivateRoute>} />
+                  <Route path="/create/room" element={<PrivateRoute><RoomForm /></PrivateRoute>} />
+                  <Route path="/update/room" element={<PrivateRoute><RoomForm /></PrivateRoute>} />
                   <Route path="/reservations" element={<PrivateRoute><UserTable /></PrivateRoute>} />
                 </Routes>
             </AuthProvider>
