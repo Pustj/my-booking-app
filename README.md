@@ -68,3 +68,11 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+## Notes
+
+### Calendars Examples
+Qui alcuni esempi di calendari/schedulers: 
+[https://ui.toast.com/tui-calendar](https://ui.toast.com/tui-calendar)
+[https://react-big-schedule.vercel.app/basic](https://react-big-schedule.vercel.app/basic)

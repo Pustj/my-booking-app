@@ -2,10 +2,9 @@
 import { Routes, Route } from 'react-router-dom';
 
 import NavBar from "./components/NavBar";
-import Test from './components/test';
-import UsersList from './components/usersList';
-import ScheduleSelectorComponent from './components/ScheduleSelector';
-
+import Test from './test';
+import UsersList from './component';
+import { DatePicker } from 'antd';
 
 const App = () => {
    return (
@@ -15,7 +14,8 @@ const App = () => {
             <Route path="/" element={<Test />} />
             <Route path="/users" element={<UsersList />} />
          </Routes>
-        <ScheduleSelectorComponent />
+
+         <DatePicker />
       </>
    );
 };
