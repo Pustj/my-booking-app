@@ -7,17 +7,17 @@ import "dayjs/locale/it";
 
 dayjs.locale("it");
 
-const RoomTable = () => {
+const AreaTable = () => {
   const [data, setData] = useState([]); // Dati originali
   const [filteredData, setFilteredData] = useState([]); // Dati filtrati
   const [loading, setLoading] = useState(true); // Stato di caricamento
   const [searchText, setSearchText] = useState(""); // Stato per il testo di ricerca
   const navigate = useNavigate(); // Hook per navigare
 
-  const fetchRooms = async () => {
+  const fetchAreas = async () => {
     const token = localStorage.getItem("authToken");
     try {
-      const response = await fetch("http://localhost:8080/BookingRooms/api/v1/rooms", {
+      const response = await fetch("http://localhost:8080/BookingRooms/api/v1/areas", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -26,15 +26,14 @@ const RoomTable = () => {
       });
 
       if (response.ok) {
-        const rooms = await response.json();
+        const areas = await response.json();
 
-        const formattedData = rooms.map((room, index) => ({
+        const formattedData = areas.map((area, index) => ({
           key: index+1, // Chiave per la tabella
-          id: room.roomId, // ID dell'utente (necessario per identificare e cancellare)
-          name: room.name,
-          capacity: room.capacity,
-          colorValue: room.colorHEX,
-          createdAt: room.createdAt || "Data non disponibile",
+          id: area.areaId, // ID dell'utente (necessario per identificare e cancellare)
+          name: area.name,
+          colorValue: area.colorHEX,
+          createdAt: area.createdAt || "Data non disponibile",
         }));
 
         setData(formattedData);
@@ -58,7 +57,7 @@ const RoomTable = () => {
   };
 
   useEffect(() => {
-    fetchRooms();
+    fetchAreas();
   }, []);
 
   // Funzione di gestione della ricerca
@@ -76,9 +75,9 @@ const RoomTable = () => {
   };
 
   // Funzione per eliminare un utente
-  const deleteRoom = async (roomId) => {
+  const deleteArea = async (areaId) => {
     const token = localStorage.getItem("authToken");
-    const url = `http://localhost:8080/BookingRooms/api/v1/delete/room/${roomId}`;
+    const url = `http://localhost:8080/BookingRooms/api/v1/delete/area/${areaId}`;
 
     try {
       const response = await fetch(url, {
@@ -96,7 +95,7 @@ const RoomTable = () => {
         });
 
         // Aggiorna i dati nella tabella dopo la cancellazione
-        const updatedData = data.filter((room) => room.id !== roomId);
+        const updatedData = data.filter((area) => area.id !== areaId);
         setData(updatedData);
         setFilteredData(updatedData);
       } else {
@@ -113,11 +112,11 @@ const RoomTable = () => {
     }
   };
 
-  const editRoom = async (roomId) => {
+  const editArea = async (areaId) => {
 
   try {
     // Effettua una chiamata GET al backend per ottenere i dettagli dell'utente
-    const response = await fetch(`http://localhost:8080/BookingRooms/api/v1/room/${roomId}`, {
+    const response = await fetch(`http://localhost:8080/BookingRooms/api/v1/area/${areaId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -125,10 +124,10 @@ const RoomTable = () => {
     });
 
     if (response.ok) {
-      const roomData = await response.json(); // Ottieni i dati dell'utente
+      const areaData = await response.json(); // Ottieni i dati dell'utente
 
-      // Naviga alla pagina "RoomForm" con i dati utente
-      navigate("/update/room", { state: { roomData, isEditing: true  } });
+      // Naviga alla pagina "AreaForm" con i dati utente
+      navigate("/update/area", { state: { areaData, isEditing: true  } });
     } else {
       console.error("Errore nel recuperare i dettagli dell'utente.");
     }
@@ -144,12 +143,6 @@ const RoomTable = () => {
       dataIndex: "name",
       key: "name",
     },
-    {
-      title: "Capacità",
-      dataIndex: "capacity",
-      key: "capacity",
-    },
-
     {
       title: "Colore",
       dataIndex: "colorValue",
@@ -172,7 +165,7 @@ const RoomTable = () => {
        <Button
           color="cyan"
           variant="outlined"
-          onClick={() => editRoom(record.id)} // Funzione per la modifica
+          onClick={() => editArea(record.id)} // Funzione per la modifica
           disabled={record.role === "ADMIN"} // Disabilitato per ADMIN
         >
           Modifica
@@ -180,7 +173,7 @@ const RoomTable = () => {
 
         <Popconfirm
           title="Sei sicuro di voler eliminare questo utente?"
-          onConfirm={() => deleteRoom(record.id)} // Conferma l'eliminazione
+          onConfirm={() => deleteArea(record.id)} // Conferma l'eliminazione
           okText="Sì"
           cancelText="No"
         >
@@ -198,7 +191,7 @@ const RoomTable = () => {
 
   return (
     <div>
-        <h1 style={{ textAlign: "center", marginBottom: "20px" }}>rooms</h1>
+        <h1 style={{ textAlign: "center", marginBottom: "20px" }}>areas</h1>
 
       <Input
         placeholder="Cerca per nome"
@@ -220,4 +213,4 @@ const RoomTable = () => {
   );
 };
 
-export default RoomTable;
+export default AreaTable;

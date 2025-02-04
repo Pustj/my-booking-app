@@ -2,9 +2,9 @@ import React, { useState,useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 import PrivateRoute from "../PrivateRoute";
 import UserForm from "../components/user/UserForm";
-import RoomForm from "../components/room/RoomForm";
+import AreaForm from "../components/area/AreaForm";
 import UserTable from "../components/user/UserTable";
-import RoomTable from "../components/room/RoomTable";
+import AreaTable from "../components/area/AreaTable";
 import Dashboard from "../pages/Dashboard";
 import { AuthProvider, useAuth } from '../AuthContext';
 import {jwtDecode} from 'jwt-decode';
@@ -123,8 +123,8 @@ const {
                   icon: <BorderOutlined />,
                   label: "Stanze",
                   children: [
-                        { key: '31', label: <Link to="/rooms">Stanze</Link>, icon: <BorderlessTableOutlined /> },
-                        { key: '32', label: <Link to="/create/room">Crea stanza</Link>, icon: <AppstoreAddOutlined /> },
+                        { key: '31', label: <Link to="/areas">Risorse</Link>, icon: <BorderlessTableOutlined /> },
+                        { key: '32', label: <Link to="/create/area">Crea risorsa</Link>, icon: <AppstoreAddOutlined /> },
                   ],
                 },
                 {
@@ -188,9 +188,9 @@ const {
                   <Route path="/users" element={<PrivateRoute><UserTable /></PrivateRoute>} />
                   <Route path="/create/user" element={<PrivateRoute><UserForm /></PrivateRoute>} />
                   <Route path="/update/user" element={<PrivateRoute><UserForm /></PrivateRoute>} />
-                  <Route path="/rooms" element={<PrivateRoute><RoomTable /></PrivateRoute>} />
-                  <Route path="/create/room" element={<PrivateRoute><RoomForm /></PrivateRoute>} />
-                  <Route path="/update/room" element={<PrivateRoute><RoomForm /></PrivateRoute>} />
+                  <Route path="/areas" element={<PrivateRoute><AreaTable /></PrivateRoute>} />
+                  <Route path="/create/area" element={<PrivateRoute><AreaForm /></PrivateRoute>} />
+                  <Route path="/update/area" element={<PrivateRoute><AreaForm /></PrivateRoute>} />
                   <Route path="/reservations" element={<PrivateRoute><UserTable /></PrivateRoute>} />
                 </Routes>
             </AuthProvider>

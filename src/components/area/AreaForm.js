@@ -17,23 +17,22 @@ const tailLayout = {
     span: 16,
   },
 };
-const RoomForm = () => {
+const AreaForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { roomData, isEditing } = location.state || {};
+  const { areaData, isEditing } = location.state || {};
   const [form] = Form.useForm();
 
 // Pre-popolazione dei campi del form al caricamento
   React.useEffect(() => {
-      if (isEditing && roomData) {
+      if (isEditing && areaData) {
         form.setFieldsValue({
-          id: roomData.roomId,
-          name: roomData.name,
-          capacity: roomData.capacity,
-          colorValue: roomData.colorHEX,
+          id: areaData.areaId,
+          name: areaData.name,
+          colorValue: areaData.colorHEX,
         });
       }
-    }, [roomData, isEditing, form]);
+    }, [areaData, isEditing, form]);
 
 
 
@@ -45,13 +44,12 @@ const RoomForm = () => {
             values.colorValue = values.colorValue.toHexString();
            }
            const payload = {
-                           id:roomData.roomId,
+                           id:areaData.areaId,
                            name: values.name,
-                           capacity: values.capacity,
                            colorValue: values.colorValue,
                          };
            try {
-                  const response = await fetch('http://localhost:8080/BookingRooms/api/v1/save/room', {
+                  const response = await fetch('http://localhost:8080/BookingRooms/api/v1/save/area', {
                                 method: 'POST',
                                 headers: {
                                   Authorization: `Bearer ${token}`,
@@ -68,7 +66,7 @@ const RoomForm = () => {
                                      placement: 'bottomRight',
                                    });
 
-                    navigate("/rooms");
+                    navigate("/areas");
 
                    } else {
                        notification.error({
@@ -88,11 +86,10 @@ const RoomForm = () => {
           const payload = {
               id:null,
               name: values.name,
-              capacity: values.capacity,
               colorValue: values.colorValue.toHexString(),
             };
           try {
-            const response = await fetch('http://localhost:8080/BookingRooms/api/v1/save/room', {
+            const response = await fetch('http://localhost:8080/BookingRooms/api/v1/save/area', {
               method: 'POST',
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -133,7 +130,7 @@ const RoomForm = () => {
     <AntdApp>
 
 
-    <h1 style={{ textAlign: "center", marginBottom: "50px" }}>{isEditing ? "Room Update Form" : "Room Creation Form"}</h1>
+    <h1 style={{ textAlign: "center", marginBottom: "50px" }}>{isEditing ? "Area Update Form" : "Area Creation Form"}</h1>
 
 
     <Form
@@ -157,17 +154,7 @@ const RoomForm = () => {
        >
         <Input />
        </Form.Item>
-       <Form.Item
-               name="capacity"
-               label="Capacità"
-               rules={[
-                 {
-                     required: true,
-                 },
-               ]}
-       >
-        <InputNumber min={1} max={10} />
-       </Form.Item>
+
       <Form.Item
         name="colorValue"
         label="Colore stanza"
@@ -193,4 +180,4 @@ const RoomForm = () => {
     </AntdApp>
   );
 };
-export default RoomForm;
+export default AreaForm;
