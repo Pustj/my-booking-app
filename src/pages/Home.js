@@ -121,10 +121,10 @@ const {
                 {
                   key: '3',
                   icon: <BorderOutlined />,
-                  label: "Stanze",
+                  label: "Area/Zone",
                   children: [
-                        { key: '31', label: <Link to="/areas">Risorse</Link>, icon: <BorderlessTableOutlined /> },
-                        { key: '32', label: <Link to="/create/area">Crea risorsa</Link>, icon: <AppstoreAddOutlined /> },
+                        { key: '31', label: <Link to="/areas">Lista area/zone</Link>, icon: <BorderlessTableOutlined /> },
+                        { key: '32', label: <Link to="/create/area">Crea area/zona</Link>, icon: <AppstoreAddOutlined /> },
                   ],
                 },
                 {

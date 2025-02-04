@@ -1,0 +1,119 @@
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import { Table, notification, Spin, ColorPicker, Space, Button, Popconfirm } from 'antd';
+
+
+import dayjs from "dayjs";
+import "dayjs/locale/it";
+
+dayjs.locale("it");
+
+
+const AreaTable = () => {
+  const [areas, setAreas] = useState([]); // Stato per i dati della tabella
+  const [loading, setLoading] = useState(false); // Stato per il caricamento dei dati
+
+  const token = localStorage.getItem("authToken"); // Recupera l'auth token dal localStorage
+
+  // Funzione per ottenere i dati delle aree dall'endpoint
+  const fetchAreas = async () => {
+    setLoading(true); // Attiva il loader
+    try {
+      const response = await fetch('http://localhost:8080/BookingRooms/api/v1/areas', {
+        headers: {
+          Authorization: `Bearer ${token}`, // Passa il token per l'autenticazione
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json(); // Processa la risposta come JSON
+        setAreas(data); // Imposta i dati nell'array areas
+      } else {
+        notification.error({
+          message: 'Errore',
+          description: 'Impossibile caricare le aree.',
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: 'Errore',
+        description: 'Si è verificato un errore durante il caricamento delle aree.',
+      });
+    }
+    setLoading(false); // Disattiva il loader
+  };
+
+  // Effettua la chiamata fetch al caricamento del componente
+  useEffect(() => {
+    fetchAreas();
+  }, []);
+
+  const columns = [
+      {
+        title: "Nome stanza",
+        dataIndex: "title",
+        key: "title",
+      },
+      {
+        title: "Colore",
+        dataIndex: "colorHEX",
+        key: "colorHEX",
+        render: (colorHEX) =>
+                      <ColorPicker defaultValue={colorHEX} showText disabled />
+      },
+      {
+              title: "Data di Creazione",
+              dataIndex: "createdAt",
+              key: "createdAt",
+              render: (createdAt) =>
+                dayjs(createdAt).locale("it").format("DD MMMM YYYY"),
+            },
+      {
+        title: "Azioni", // Colonna per le azioni
+        key: "actions",
+        render: (_, record) => (
+        <Space>
+         <Button
+            color="cyan"
+            variant="outlined"
+            //onClick={() => editArea(record.id)} // Funzione per la modifica
+            disabled={record.role === "ADMIN"} // Disabilitato per ADMIN
+          >
+            Modifica
+          </Button>
+
+          <Popconfirm
+            title="Sei sicuro di voler eliminare questo utente?"
+            //onConfirm={() => deleteArea(record.areaId)} // Conferma l'eliminazione
+            okText="Sì"
+            cancelText="No"
+          >
+            <Button
+              danger
+            >
+              Elimina
+            </Button>
+          </Popconfirm>
+          </Space>
+
+        ),
+      },
+    ];
+  return (
+    <div>
+      <h1>Elenco delle Aree</h1>
+      <Table
+        columns={columns} // Colonne definite sopra
+        dataSource={areas} // Dati della tabella
+        loading={loading} // Loader che si attiva durante la chiamata API
+        rowKey="id" // Chiave unica nella tabella (corrisponde a `id` nel JSON)
+      />
+    </div>
+  );
+};
+
+export default AreaTable;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, ColorPicker, Form, Input, InputNumber, Space, notification, App as AntdApp } from 'antd';
+import { Button, ColorPicker, Form, Input, Space,Select,  notification, App as AntdApp } from 'antd';
 import { useLocation, useNavigate } from "react-router-dom";
 
 
@@ -25,10 +25,13 @@ const AreaForm = () => {
 
 // Pre-popolazione dei campi del form al caricamento
   React.useEffect(() => {
+  console.log(isEditing);
+  console.log(areaData);
       if (isEditing && areaData) {
         form.setFieldsValue({
           id: areaData.areaId,
-          name: areaData.name,
+          title: areaData.title,
+          typeArea: areaData.typeArea,
           colorValue: areaData.colorHEX,
         });
       }
@@ -40,12 +43,14 @@ const AreaForm = () => {
       const token = localStorage.getItem("authToken");
 
        if (isEditing) {
+
            if(typeof(values.colorValue)==="object"){
             values.colorValue = values.colorValue.toHexString();
            }
            const payload = {
-                           id:areaData.areaId,
-                           name: values.name,
+                           id: areaData.areaId,
+                           title: values.title,
+                           typeArea: values.typeArea,
                            colorValue: values.colorValue,
                          };
            try {
@@ -85,7 +90,8 @@ const AreaForm = () => {
        } else {
           const payload = {
               id:null,
-              name: values.name,
+              title: values.title,
+              typeArea: values.typeArea,
               colorValue: values.colorValue.toHexString(),
             };
           try {
@@ -144,8 +150,8 @@ const AreaForm = () => {
       }}>
 
       <Form.Item
-              name="name"
-              label="Nome stanza"
+              name="title"
+              label="Nome Zona"
               rules={[
                 {
                   required: true,
@@ -167,7 +173,25 @@ const AreaForm = () => {
         <ColorPicker  showText />
 
       </Form.Item>
+      <Form.Item
+        name="typeArea"
+        label="Tipo zona"
+        rules={[
+          {
+            required: true,
+          },
+        ]}
+      >
+       <Select
+             defaultValue="-"
+             style={{ width: 120 }}
+             options={[
+               { value: 'MASSAGGIO', label: 'Massaggio' },
+               { value: 'PILATES', label: 'Pilates' },
+             ]}
+           />
 
+      </Form.Item>
       <Form.Item {...tailLayout}>
         <Space>
           <Button type="primary" htmlType="submit">

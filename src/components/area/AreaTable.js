@@ -1,216 +1,270 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 
-import { Table, ColorPicker, notification, Input, Button, Popconfirm, Space } from "antd";
+import { Table, Spin, notification, ColorPicker, Space, Button, Popconfirm } from 'antd';
 import dayjs from "dayjs";
 import "dayjs/locale/it";
 
 dayjs.locale("it");
 
 const AreaTable = () => {
-  const [data, setData] = useState([]); // Dati originali
-  const [filteredData, setFilteredData] = useState([]); // Dati filtrati
-  const [loading, setLoading] = useState(true); // Stato di caricamento
-  const [searchText, setSearchText] = useState(""); // Stato per il testo di ricerca
+  const [areas, setAreas] = useState([]); // Dati per la tabella
+  const [loading, setLoading] = useState(false); // Loader per la tabella
+  const [resources, setResources] = useState({}); // Risorse caricate per area_id
+  const [expandedRows, setExpandedRows] = useState([]); // Lista delle righe espanse
   const navigate = useNavigate(); // Hook per navigare
 
+  const token = localStorage.getItem("authToken");
+
+  // Recupera le aree da un endpoint
   const fetchAreas = async () => {
-    const token = localStorage.getItem("authToken");
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:8080/BookingRooms/api/v1/areas", {
-        method: "GET",
+      const response = await fetch('http://localhost:8080/BookingRooms/api/v1/areas', {
         headers: {
           Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json(); // Assuming the backend returns a JSON array
+        setAreas(data);
+      } else {
+        notification.error({
+          message: 'Errore',
+          description: 'Impossibile caricare le aree.',
+        });
+      }
+    } catch (error) {
+      notification.error({
+        message: 'Errore',
+        description: 'Si è verificato un errore durante il caricamento delle aree.',
+      });
+    }
+    setLoading(false);
+  };
+
+  // Recupera i resources associati a un'area
+  const fetchResources = async (areaId) => {
+    if (resources[areaId]) {
+      // Se i resources sono già stati caricati, restituiscili
+      return resources[areaId];
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/BookingRooms/api/v1/resources/area?area_id=${areaId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json(); // Assuming the backend returns a JSON array
+        setResources((prev) => ({ ...prev, [areaId]: data })); // Salva i risultati nella mappa resources
+        return data;
+      } else {
+        notification.error({
+          message: 'Errore',
+          description: `Impossibile caricare i resources per l'area ${areaId}`,
+        });
+        return [];
+      }
+    } catch (error) {
+      notification.error({
+        message: 'Errore',
+        description: `Errore durante il caricamento dei resources per l'area ${areaId}`,
+      });
+      return [];
+    }
+  };
+
+  // Funzione per eliminare un utente
+    const deleteArea = async (areaId) => {
+      const token = localStorage.getItem("authToken");
+      const url = `http://localhost:8080/BookingRooms/api/v1/delete/area/${areaId}`;
+
+      try {
+        const response = await fetch(url, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          notification.success({
+            message: "Utente eliminato",
+            description: "L'utente è stato eliminato con successo.",
+          });
+
+          // Aggiorna i dati nella tabella dopo la cancellazione
+          const updatedData = areas.filter((area) => area.areaId !== areaId);
+          setAreas(updatedData);
+          //setFilteredData(updatedData);
+        } else {
+          notification.error({
+            message: "Errore nell'eliminazione",
+            description: "Impossibile eliminare l'utente.",
+          });
+        }
+      } catch (error) {
+        notification.error({
+          message: "Errore di rete",
+          description: "Errore durante l'eliminazione dell'utente.",
+        });
+      }
+    };
+
+  const editArea = async (areaId) => {
+
+    try {
+      // Effettua una chiamata GET al backend per ottenere i dettagli dell'utente
+      const response = await fetch(`http://localhost:8080/BookingRooms/api/v1/area/${areaId}`, {
+        method: "GET",
+        headers: {
           "Content-Type": "application/json",
         },
       });
 
       if (response.ok) {
-        const areas = await response.json();
+        const areaData = await response.json(); // Ottieni i dati dell'utente
 
-        const formattedData = areas.map((area, index) => ({
-          key: index+1, // Chiave per la tabella
-          id: area.areaId, // ID dell'utente (necessario per identificare e cancellare)
-          name: area.name,
-          colorValue: area.colorHEX,
-          createdAt: area.createdAt || "Data non disponibile",
-        }));
-
-        setData(formattedData);
-        console.log("Dati elaborati per la tabella:", formattedData);
-
-        setFilteredData(formattedData); // Assegniamo inizialmente tutti i dati anche a quelli filtrati
+        // Naviga alla pagina "AreaForm" con i dati utente
+        navigate("/update/area", { state: { areaData, isEditing: true  } });
       } else {
-        notification.error({
-          message: "Errore nel recupero dei dati",
-          description: "Impossibile recuperare i dati delle stanze dal server.",
-        });
+        console.error("Errore nel recuperare i dettagli dell'utente.");
       }
     } catch (error) {
-      notification.error({
-        message: "Errore",
-        description: "Problemi di rete o errore nel server.",
-      });
-    } finally {
-      setLoading(false);
+      console.error("Errore nella chiamata al backend:", error);
     }
   };
 
+  // Listener per gestire l'espansione delle righe
+  const onExpand = async (expanded, record) => {
+
+    if (expanded) {
+      // Carica le risorse se non sono già disponibili
+      const data = await fetchResources(record.areaId);
+      setExpandedRows((prev) => [...prev, record.areaId]); // Aggiungi l'id dell'area alle righe espanse
+    } else {
+      setExpandedRows((prev) => prev.filter((id) => id !== record.areaId)); // Rimuovi la riga dall'elenco espanso
+    }
+  };
+
+// Effettua la chiamata fetch al caricamento del componente
+  useEffect(() => {
+    fetchAreas();
+  }, []);
+  // Configurazione delle colonne della tabella
+  const columns = [
+    {
+      title: 'Nome Area',
+      dataIndex: 'title',
+      key: 'title',
+    },
+    {
+      title: 'Tipo Area',
+      dataIndex: 'typeArea',
+      key: 'typeArea',
+    },
+    {
+        title: "Colore",
+        dataIndex: "colorHEX",
+        key: "colorHEX",
+        render: (colorHEX) =>
+            <ColorPicker defaultValue={colorHEX} showText disabled />
+    },
+    {
+          title: "Data di Creazione",
+          dataIndex: "createdAt",
+          key: "createdAt",
+          render: (createdAt) =>
+            dayjs(createdAt).locale("it").format("DD MMMM YYYY"),
+        },
+    {
+            title: "Azioni", // Colonna per le azioni
+            key: "actions",
+            render: (_, record) => (
+            <Space>
+             <Button
+                color="cyan"
+                variant="outlined"
+                onClick={() => editArea(record.areaId)} // Funzione per la modifica
+              >
+                Modifica
+              </Button>
+
+              <Popconfirm
+                title="Sei sicuro di voler eliminare questo utente?"
+                onConfirm={() => deleteArea(record.areaId)} // Conferma l'eliminazione
+                okText="Sì"
+                cancelText="No"
+              >
+                <Button
+                  danger
+                >
+                  Elimina
+                </Button>
+              </Popconfirm>
+              </Space>
+
+            ),
+          },
+  ];
+const columnsExpanded = [
+    {
+      title: 'Nome Risorsa',
+      dataIndex: 'name',
+      key: 'name',
+    },
+  ];
+
+
+  // L'effetto viene usato per recuperare inizialmente le aree
   useEffect(() => {
     fetchAreas();
   }, []);
 
-  // Funzione di gestione della ricerca
-  const handleSearch = (e) => {
-    const searchString = e.target.value.toLowerCase();
-    setSearchText(searchString); // Aggiorna lo stato del testo di ricerca
+  // Configurazione delle righe espandibili
+  const expandable = {
 
-    const filtered = data.filter((item) => {
-      return (
-        item.name.toLowerCase().includes(searchString)
-      );
-    });
-
-    setFilteredData(filtered); // Aggiorna i dati filtrati
-  };
-
-  // Funzione per eliminare un utente
-  const deleteArea = async (areaId) => {
-    const token = localStorage.getItem("authToken");
-    const url = `http://localhost:8080/BookingRooms/api/v1/delete/area/${areaId}`;
-
-    try {
-      const response = await fetch(url, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        notification.success({
-          message: "Stanza eliminata",
-          description: "La stanza è stata eliminata con successo.",
-        });
-
-        // Aggiorna i dati nella tabella dopo la cancellazione
-        const updatedData = data.filter((area) => area.id !== areaId);
-        setData(updatedData);
-        setFilteredData(updatedData);
-      } else {
-        notification.error({
-          message: "Errore nell'eliminazione",
-          description: "Impossibile eliminare la stanza.",
-        });
+    expandedRowRender: (record) => {
+        console.log(record);
+      const areaResources = resources[record.areaId]; // Recupera le risorse per questa area
+      if (!areaResources) {
+        return <Spin />;
       }
-    } catch (error) {
-      notification.error({
-        message: "Errore di rete",
-        description: "Errore durante l'eliminazione della stanza.",
-      });
-    }
+
+      return (
+       <Table
+          columns={columnsExpanded}
+          dataSource={areaResources}
+          pagination={false}
+        />
+      );
+    },
+    rowExpandable: () => true, // Consenti di espandere tutte le righe
   };
-
-  const editArea = async (areaId) => {
-
-  try {
-    // Effettua una chiamata GET al backend per ottenere i dettagli dell'utente
-    const response = await fetch(`http://localhost:8080/BookingRooms/api/v1/area/${areaId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      const areaData = await response.json(); // Ottieni i dati dell'utente
-
-      // Naviga alla pagina "AreaForm" con i dati utente
-      navigate("/update/area", { state: { areaData, isEditing: true  } });
-    } else {
-      console.error("Errore nel recuperare i dettagli dell'utente.");
-    }
-  } catch (error) {
-    console.error("Errore nella chiamata al backend:", error);
-  }
-};
-
-  // Colonne della tabella
-  const columns = [
-    {
-      title: "Nome stanza",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Colore",
-      dataIndex: "colorValue",
-      key: "colorValue",
-      render: (colorValue) =>
-                    <ColorPicker defaultValue={colorValue} showText disabled />
-    },
-    {
-            title: "Data di Creazione",
-            dataIndex: "createdAt",
-            key: "createdAt",
-            render: (createdAt) =>
-              dayjs(createdAt).locale("it").format("DD MMMM YYYY"),
-          },
-    {
-      title: "Azioni", // Colonna per le azioni
-      key: "actions",
-      render: (_, record) => (
-      <Space>
-       <Button
-          color="cyan"
-          variant="outlined"
-          onClick={() => editArea(record.id)} // Funzione per la modifica
-          disabled={record.role === "ADMIN"} // Disabilitato per ADMIN
-        >
-          Modifica
-        </Button>
-
-        <Popconfirm
-          title="Sei sicuro di voler eliminare questo utente?"
-          onConfirm={() => deleteArea(record.id)} // Conferma l'eliminazione
-          okText="Sì"
-          cancelText="No"
-        >
-          <Button
-            danger
-          >
-            Elimina
-          </Button>
-        </Popconfirm>
-        </Space>
-
-      ),
-    },
-  ];
 
   return (
     <div>
-        <h1 style={{ textAlign: "center", marginBottom: "20px" }}>areas</h1>
-
-      <Input
-        placeholder="Cerca per nome"
-        value={searchText} // Testo di ricerca
-        onChange={handleSearch} // Si attiva su ogni carattere digitato
-        allowClear
-        size="large"
-        style={{ marginBottom: 16, maxWidth: 400 }}
-      />
-
-      {/* Tabella */}
+      <h1>Elenco delle Aree</h1>
       <Table
-        columns={columns}
-        dataSource={filteredData} // Usa i dati filtrati
-        loading={loading} // Mostra stato di caricamento
-        pagination={{ pageSize: 5 }} // Paginazione
+        columns={columns} // Colonne configurate
+        dataSource={areas} // Dati della tabella
+        loading={loading} // Mostra lo spinner se i dati non sono stati caricati
+        rowKey="areaId" // Chiave unica per ogni riga
+        expandable={expandable} // Configurazione dell'espandibilità
+        expandedRowKeys={expandedRows} // Righe attualmente espanse
+        onExpand={onExpand} // Listener per gestire l'espansione
       />
     </div>
   );
 };
 
 export default AreaTable;
+
+
+
+
+
+
