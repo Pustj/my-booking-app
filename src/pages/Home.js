@@ -5,6 +5,8 @@ import UserForm from "../components/user/UserForm";
 import AreaForm from "../components/area/AreaForm";
 import UserTable from "../components/user/UserTable";
 import AreaTable from "../components/area/AreaTable";
+import ResourceForm from "../components/resource/ResourceForm";
+import ResourceTable from "../components/resource/ResourceTable";
 import Dashboard from "../pages/Dashboard";
 import { AuthProvider, useAuth } from '../AuthContext';
 import {jwtDecode} from 'jwt-decode';
@@ -28,17 +30,6 @@ import { Button, Layout, Menu, theme, ConfigProvider } from 'antd';
 
 const { Header, Sider, Content } = Layout;
 
-//Debug contenuto Token JWT
-/*const token = localStorage.getItem("authToken"); // Assicurati che il token venga memorizzato correttamente
-if (token) {
-  const decodedToken = jwtDecode(token);
- for (const key in decodedToken) {
-   if (Object.hasOwnProperty.call(decodedToken, key)) {
-     console.log(`${key}: ${decodedToken[key]}`);
-   }
- }
- // Verifica se il nome utente è presente
-}*/
 const Home: React.FC = () => {
 
 const { logout } = useAuth();
@@ -125,6 +116,8 @@ const {
                   children: [
                         { key: '31', label: <Link to="/areas">Lista area/zone</Link>, icon: <BorderlessTableOutlined /> },
                         { key: '32', label: <Link to="/create/area">Crea area/zona</Link>, icon: <AppstoreAddOutlined /> },
+                        { key: '33', label: <Link to="/resources">Lista risorse</Link>, icon: <AppstoreAddOutlined /> },
+                        { key: '34', label: <Link to="/create/resource">Crea risorsa</Link>, icon: <AppstoreAddOutlined /> },
                   ],
                 },
                 {
@@ -191,6 +184,8 @@ const {
                   <Route path="/areas" element={<PrivateRoute><AreaTable /></PrivateRoute>} />
                   <Route path="/create/area" element={<PrivateRoute><AreaForm /></PrivateRoute>} />
                   <Route path="/update/area" element={<PrivateRoute><AreaForm /></PrivateRoute>} />
+                  <Route path="/create/resource" element={<PrivateRoute><ResourceForm /></PrivateRoute>} />
+                  <Route path="/resources" element={<PrivateRoute><ResourceTable /></PrivateRoute>} />
                   <Route path="/reservations" element={<PrivateRoute><UserTable /></PrivateRoute>} />
                 </Routes>
             </AuthProvider>

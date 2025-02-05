@@ -66,8 +66,8 @@ const AreaForm = () => {
 
                    if (response.ok) {
                     notification.success({
-                                     message: 'Stanza salvata!',
-                                     description: "La stanza è stato salvato con successo",
+                                     message: 'Zona salvata!',
+                                     description: "La zona è stato salvato con successo",
                                      placement: 'bottomRight',
                                    });
 
@@ -107,8 +107,8 @@ const AreaForm = () => {
 
             if (response.ok) {
              notification.success({
-                              message: 'Stanza creata!',
-                              description: 'La nuova stanza è stata creata con successo',
+                              message: 'Zona creata!',
+                              description: 'La nuova zona è stata creata con successo',
                               placement: 'bottomRight',
                             });
              form.resetFields();
@@ -163,7 +163,7 @@ const AreaForm = () => {
 
       <Form.Item
         name="colorValue"
-        label="Colore stanza"
+        label="Colore zona"
         rules={[
           {
             required: true,

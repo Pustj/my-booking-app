@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 
-import { Table, Spin, notification, ColorPicker, Space, Button, Popconfirm } from 'antd';
+import { Table, Spin, notification, ColorPicker, Space, Button, Popconfirm, Tag } from 'antd';
 import dayjs from "dayjs";
 import "dayjs/locale/it";
 
@@ -165,6 +165,7 @@ const AreaTable = () => {
       title: 'Tipo Area',
       dataIndex: 'typeArea',
       key: 'typeArea',
+      render: (typeArea) =><Tag color={getTagColor(typeArea)}>{typeArea}</Tag>
     },
     {
         title: "Colore",
@@ -210,6 +211,18 @@ const AreaTable = () => {
             ),
           },
   ];
+
+  // Funzione per colorare i Tag in base al ruolo
+    const getTagColor = (role) => {
+      switch (role) {
+        case "MASSAGGIO":
+          return "geekblue";
+        case "PILATES":
+          return "volcano";
+        default:
+          return "gray";
+      }
+    };
 const columnsExpanded = [
     {
       title: 'Nome Risorsa',
