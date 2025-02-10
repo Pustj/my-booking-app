@@ -7,6 +7,7 @@ import UserTable from "../components/user/UserTable";
 import AreaTable from "../components/area/AreaTable";
 import ResourceForm from "../components/resource/ResourceForm";
 import ResourceTable from "../components/resource/ResourceTable";
+import EventForm from "../components/reservation/EventForm";
 import Dashboard from "../pages/Dashboard";
 import { AuthProvider, useAuth } from '../AuthContext';
 import {jwtDecode} from 'jwt-decode';
@@ -185,8 +186,9 @@ const {
                   <Route path="/create/area" element={<PrivateRoute><AreaForm /></PrivateRoute>} />
                   <Route path="/update/area" element={<PrivateRoute><AreaForm /></PrivateRoute>} />
                   <Route path="/create/resource" element={<PrivateRoute><ResourceForm /></PrivateRoute>} />
+                  <Route path="/update/resource" element={<PrivateRoute><ResourceForm /></PrivateRoute>} />
                   <Route path="/resources" element={<PrivateRoute><ResourceTable /></PrivateRoute>} />
-                  <Route path="/reservations" element={<PrivateRoute><UserTable /></PrivateRoute>} />
+                  <Route path="/reservation" element={<PrivateRoute><EventForm /></PrivateRoute>} />
                 </Routes>
             </AuthProvider>
             </Content>

@@ -1,13 +1,11 @@
 import React from 'react';
-import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import NumberUsers from "../components/dashboard/NumberUsers";
-import CustomCalendar from "../components/dashboard/CustomCalendar";
-import { Card, Col, Row, Statistic } from 'antd';
+import CustomCalendarWrapper from "../components/dashboard/CustomCalendarWrapper";
 
 const Dashboard: React.FC = () => (
     <>
       <NumberUsers />
-      <CustomCalendar />
+      <CustomCalendarWrapper />
     </>
 );
 

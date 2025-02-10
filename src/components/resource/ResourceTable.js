@@ -32,9 +32,9 @@ const ResourceTable = () => {
           key: index+1, // Chiave per la tabella
           id: resource.resourceId, // ID dell'utente (necessario per identificare e cancellare)
           name: resource.name,
-          areaId: resource.area.areaId,
-          areaName: resource.area.title,
-          areaColor: resource.area.colorHEX,
+          areaId: resource.areaInfo.areaId,
+          areaName: resource.areaInfo.title,
+          areaColor: resource.areaInfo.colorHEX,
           createdAt: resource.createdAt || "Data non disponibile",
         }));
         console.log(formattedData);
@@ -180,18 +180,6 @@ const ResourceTable = () => {
       ),
     },
   ];
-
-  // Funzione per colorare i Tag in base al ruolo
-  const getTagColor = (role) => {
-    switch (role) {
-      case "ADMIN":
-        return "geekblue";
-      case "RESOURCE":
-        return "green";
-      default:
-        return "gray";
-    }
-  };
 
   return (
     <div>

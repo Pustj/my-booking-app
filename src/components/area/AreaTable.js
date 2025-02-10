@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 
 import { Table, Spin, notification, ColorPicker, Space, Button, Popconfirm, Tag } from 'antd';
@@ -17,7 +17,7 @@ const AreaTable = () => {
   const token = localStorage.getItem("authToken");
 
   // Recupera le aree da un endpoint
-  const fetchAreas = async () => {
+  const fetchAreas = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch('http://localhost:8080/BookingRooms/api/v1/areas', {
@@ -41,7 +41,7 @@ const AreaTable = () => {
       });
     }
     setLoading(false);
-  };
+  }, [token]);
 
   // Recupera i resources associati a un'area
   const fetchResources = async (areaId) => {
@@ -100,16 +100,21 @@ const AreaTable = () => {
           const updatedData = areas.filter((area) => area.areaId !== areaId);
           setAreas(updatedData);
           //setFilteredData(updatedData);
+        } else if(response.status === 406) {
+            notification.warning({
+                    message: "Attenzione",
+                    description: "Questa area ha delle risorse associate.",
+                  });
         } else {
           notification.error({
             message: "Errore nell'eliminazione",
-            description: "Impossibile eliminare l'utente.",
+            description: "Impossibile eliminare l'area.",
           });
         }
       } catch (error) {
         notification.error({
           message: "Errore di rete",
-          description: "Errore durante l'eliminazione dell'utente.",
+          description: "Errore durante l'eliminazione dell'area.",
         });
       }
     };
@@ -131,7 +136,7 @@ const AreaTable = () => {
         // Naviga alla pagina "AreaForm" con i dati utente
         navigate("/update/area", { state: { areaData, isEditing: true  } });
       } else {
-        console.error("Errore nel recuperare i dettagli dell'utente.");
+        console.error("Errore nel recuperare i dettagli dell'area.");
       }
     } catch (error) {
       console.error("Errore nella chiamata al backend:", error);
@@ -143,7 +148,7 @@ const AreaTable = () => {
 
     if (expanded) {
       // Carica le risorse se non sono già disponibili
-      const data = await fetchResources(record.areaId);
+      await fetchResources(record.areaId);
       setExpandedRows((prev) => [...prev, record.areaId]); // Aggiungi l'id dell'area alle righe espanse
     } else {
       setExpandedRows((prev) => prev.filter((id) => id !== record.areaId)); // Rimuovi la riga dall'elenco espanso
@@ -153,7 +158,8 @@ const AreaTable = () => {
 // Effettua la chiamata fetch al caricamento del componente
   useEffect(() => {
     fetchAreas();
-  }, []);
+  }, [fetchAreas]);
+
   // Configurazione delle colonne della tabella
   const columns = [
     {
@@ -223,7 +229,7 @@ const AreaTable = () => {
           return "gray";
       }
     };
-const columnsExpanded = [
+    const columnsExpanded = [
     {
       title: 'Nome Risorsa',
       dataIndex: 'name',
@@ -232,10 +238,7 @@ const columnsExpanded = [
   ];
 
 
-  // L'effetto viene usato per recuperare inizialmente le aree
-  useEffect(() => {
-    fetchAreas();
-  }, []);
+
 
   // Configurazione delle righe espandibili
   const expandable = {

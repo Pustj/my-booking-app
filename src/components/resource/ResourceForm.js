@@ -29,8 +29,13 @@ const ResourceForm = () => {
   // Recupero delle aree al caricamento del componente
   React.useEffect(() => {
     const fetchAreas = async () => {
+    const token = localStorage.getItem("authToken");
       try {
-        const response = await fetch('http://localhost:8080/BookingRooms/api/v1/areas');
+        const response = await fetch('http://localhost:8080/BookingRooms/api/v1/areas', {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
         if (response.ok) {
           const data = await response.json();
           const options = data.map(area => ({
@@ -61,8 +66,9 @@ const ResourceForm = () => {
       form.setFieldsValue({
         id: resourceData.resourceId,
         name: resourceData.name,
-        area: resourceData.area_id,
+        area: resourceData.areaInfo?.areaId,
       });
+      console.log(resourceData)
     }
   }, [resourceData, isEditing, form]);
 

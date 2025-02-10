@@ -26,7 +26,7 @@ const AreaForm = () => {
 // Pre-popolazione dei campi del form al caricamento
   React.useEffect(() => {
   console.log(isEditing);
-  console.log(areaData);
+  console.log("TEST "+areaData);
       if (isEditing && areaData) {
         form.setFieldsValue({
           id: areaData.areaId,
