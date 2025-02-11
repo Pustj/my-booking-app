@@ -126,7 +126,7 @@ class CustomCalendar extends Component {
       resourceId: slotId,
       bgColor: "purple",
     };
-
+    console.log(newEvent);
     const { navigate } = this.props; // Navigate passato dalle props
     navigate("/reservation", { state: { eventData: newEvent } });
   };
