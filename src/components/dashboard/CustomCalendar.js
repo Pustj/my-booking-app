@@ -33,7 +33,59 @@ class CustomCalendar extends Component {
 
     // Chiama fetchResources per popolare le risorse all'avvio
     this.fetchResources();
+    this.fetchFutureBookings();
   }
+    fetchFutureBookings = async () => {
+    const token = localStorage.getItem("authToken");
+      try {
+        const response = await fetch(
+          "http://localhost:8080/BookingRooms/api/v1/bookings/future",
+          {
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Errore nel recupero dei dati dal server");
+        }
+
+        const data = await response.json();
+
+        // Trasforma i dati: mappa da JSON a oggetti compatibili con schedulerData
+        const transformedEvents = data.map((booking) => ({
+          id: booking.bookingId,
+          start: booking.fromDateTime.replace("T", " "), // Trasforma in formato richiesto
+          end: booking.toDateTime.replace("T", " "),
+          resourceId: `resource${booking.resource.resourceId}`,
+          title: booking.title,
+          bgColor: booking.resource.areaInfo.colorHEX || "#FFD700", // Usa un colore predefinito se non disponibile
+        }));
+
+        
+        // Aggiorna lo stato e le risorse nello scheduler
+                this.setState({ transformedEvents, loading: false }, () => {
+                  const { schedulerData } = this.state;
+                  schedulerData.setEvents(transformedEvents); // Imposta le risorse nello scheduler
+                  this.setState({ schedulerData }); // Aggiorna il modello con le modifiche
+                });
+      } catch (error) {
+        console.error("Errore nella chiamata API:", error);
+        notification.error({
+          message: "Errore nel caricamento",
+          description:
+            "Non è stato possibile caricare gli eventi. Riprova più tardi.",
+        });
+      }
+    };
+    updateSchedulerEvents = (schedulerData) => {
+        const { transformedEvents } = this.state; // Lista degli eventi dallo stato
+        schedulerData.setEvents(transformedEvents); // Imposta gli eventi nello scheduler
+        this.setState({ schedulerData }); // Aggiorna lo stato
+    };
+
 
   fetchResources = async () => {
     const token = localStorage.getItem("authToken");
@@ -69,6 +121,8 @@ class CustomCalendar extends Component {
             parentId: `area${resource.areaInfo.areaId}`,                // Collega alla sua area come parentId
           });
         });
+
+
 
         // Mappa le risorse dall'API
        /* const resources = res.map((resource) => ({
@@ -133,25 +187,25 @@ class CustomCalendar extends Component {
 
   prevClick = (schedulerData) => {
     schedulerData.prev();
-    schedulerData.setEvents(DemoData.events);
+    this.updateSchedulerEvents(schedulerData);
     this.setState({ schedulerData });
   };
 
   nextClick = (schedulerData) => {
     schedulerData.next();
-    schedulerData.setEvents(DemoData.events);
+    this.updateSchedulerEvents(schedulerData);
     this.setState({ schedulerData });
   };
 
   onSelectDate = (schedulerData, date) => {
     schedulerData.setDate(date);
-    schedulerData.setEvents(DemoData.events);
+    this.updateSchedulerEvents(schedulerData);
     this.setState({ schedulerData });
   };
 
   onViewChange = (schedulerData, view) => {
     schedulerData.setViewType(view.viewType, view.showAgenda, view.isEventPerspective);
-    schedulerData.setEvents(DemoData.events);
+    this.updateSchedulerEvents(schedulerData);
     this.setState({ schedulerData });
   };
 
