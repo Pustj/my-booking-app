@@ -8,6 +8,7 @@ import AreaTable from "../components/area/AreaTable";
 import ResourceForm from "../components/resource/ResourceForm";
 import ResourceTable from "../components/resource/ResourceTable";
 import EventForm from "../components/reservation/EventForm";
+import CustomCalendarWrapper from "../components/reservation/CustomCalendarWrapper";
 import Dashboard from "../pages/Dashboard";
 import { AuthProvider, useAuth } from '../AuthContext';
 import {jwtDecode} from 'jwt-decode';
@@ -38,6 +39,7 @@ const navigate = useNavigate();
 
 const [collapsed, setCollapsed] = useState(false);
 const [userName, setUserName] = useState("Anonimo");
+const [userRole, setUserRole] = useState(null);
 
 useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -50,8 +52,10 @@ useEffect(() => {
 
     try {
       const decoded = jwtDecode(token); // Decodifica il token
-      setUserName(decoded?.sub || "Anonimo"); // Aggiorna lo stato con il valore decodificato
-      //console.log("Token decodificato correttamente:", decoded);
+      setUserName(decoded?.sub || "Anonimo");
+      setUserRole(decoded?.role || null);
+      console.log(decoded?.role)
+
     } catch (err) {
       console.error("Token non valido:", err.message);
       navigate("/login", { replace: true }); // Reindirizza se il token è invalido
@@ -101,6 +105,9 @@ const {
                   icon: <DashboardOutlined />,
                   label: <Link to="/dashboard">Dashboard</Link>,
                },
+               ...(userRole === "ROLE_ADMIN"
+               ? [
+
                {
                   key: '2',
                   icon: <UserOutlined />,
@@ -110,6 +117,7 @@ const {
                         { key: '22', label: <Link to="/create/user">Crea utente</Link>, icon: <UserAddOutlined /> },
                   ],
                 },
+
                 {
                   key: '3',
                   icon: <BorderOutlined />,
@@ -120,13 +128,13 @@ const {
                         { key: '33', label: <Link to="/resources">Lista risorse</Link>, icon: <AppstoreAddOutlined /> },
                         { key: '34', label: <Link to="/create/resource">Crea risorsa</Link>, icon: <AppstoreAddOutlined /> },
                   ],
-                },
+                },]: []),
                 {
                   key: '4',
                   icon: <CarryOutOutlined />,
                   label: "Prenotazioni",
                   children: [
-                        { key: '41', label: 'Option 5' },
+                        { key: '41', label: <Link to="/booknow">Prenota ora</Link>, icon: <AppstoreAddOutlined /> },
                         { key: '42', label: 'Option 6' },
                         { key: '43', label: 'Option 7' },
                         { key: '44', label: 'Option 8' },
@@ -189,6 +197,7 @@ const {
                   <Route path="/update/resource" element={<PrivateRoute><ResourceForm /></PrivateRoute>} />
                   <Route path="/resources" element={<PrivateRoute><ResourceTable /></PrivateRoute>} />
                   <Route path="/reservation" element={<PrivateRoute><EventForm /></PrivateRoute>} />
+                  <Route path="/booknow" element={<PrivateRoute><CustomCalendarWrapper /></PrivateRoute>} />
                 </Routes>
             </AuthProvider>
             </Content>

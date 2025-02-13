@@ -10,7 +10,7 @@ const onFinish = async (values) => {
   //console.log('Success:', values); // Visualizza i valori inseriti dall'utente
 
   try {
-    const response = await fetch('http://localhost:8080/BookingRooms/api/v1/login', {
+    const response = await fetch('http://localhost:8080/BookingRooms/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ const onFinish = async (values) => {
     localStorage.setItem('authToken', data.token);
 
     // Reindirizza l'utente alla pagina home
-    window.location.href = '/home';
+    window.location.href = '/dashboard';
   } catch (error) {
     // Gestisci eventuali errori
     console.error('Errore durante il login:', error.message);

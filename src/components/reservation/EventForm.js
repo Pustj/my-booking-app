@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect,useCallback, useState } from "react";
 import { Form, Input, Button, DatePicker, Space, Switch, notification, App as AntdApp } from "antd";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -15,7 +15,7 @@ const EventForm = () => {
   const { eventData, areaId } = location.state || { eventData: null, areaId: null };
 
   // Funzione per chiamare l'API e ottenere la lista delle risorse
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     const token = localStorage.getItem("authToken");
     try {
       const resourceId = eventData.resourceId.replace("resource", "");
@@ -53,12 +53,12 @@ const EventForm = () => {
     } catch (error) {
       console.error("Errore nel caricamento delle risorse:", error);
     }
-  };
+  },[eventData.resourceId, form]);
 
   // Effetto per caricare le risorse all'avvio del componente
   useEffect(() => {
     fetchResources();
-  }, []);
+  }, [fetchResources]);
 
   const handleToggleAll = (checked) => {
     setToggleAll(checked); // Aggiorna lo stato globale
@@ -112,7 +112,7 @@ const EventForm = () => {
                                                message: "Prenotazione salvata",
                                                description: "Prenotazione salvata.",
                                              });
-                            navigate('/dashboard'); // Torna alla dashboard dopo il salvataggio
+                            navigate('/booknow'); // Torna alla dashboard dopo il salvataggio
             }else{
                 notification.error({
                                         message: "Errore nel salvataggio della prenotazione",

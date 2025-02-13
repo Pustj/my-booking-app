@@ -1,6 +1,6 @@
 import React, { Component, createRef } from "react";
 import { notification } from "antd";
-import { Scheduler, SchedulerData, ViewType, DATE_FORMAT, DemoData } from "react-big-schedule";
+import { Scheduler, SchedulerData, ViewType, DATE_FORMAT } from "react-big-schedule";
 import dayjs from "dayjs";
 import "dayjs/locale/it";
 import "react-big-schedule/dist/css/style.css";
@@ -8,17 +8,24 @@ import "../../calendar.css";
 
 dayjs.locale("it");
 
-class CustomCalendar extends Component {
-  constructor(props) {
-    super(props);
+class ReadOnlyCalendar extends Component {
 
+  constructor(props={}) {
+    super(props);
     // Crea un'istanza di SchedulerData
     const schedulerData = new SchedulerData(
       dayjs().format(DATE_FORMAT),
       ViewType.Day,
       false,
       false,
-      { responsiveByParent: true, localeDayjs: dayjs }
+      {
+        responsiveByParent: true,
+        localeDayjs: dayjs,
+        startResizable: false,
+        endResizable: false,
+        movable: false,
+        creatable: false,
+      }
     );
     schedulerData.config.dragAndDropEnabled = false;
     // Stato iniziale
@@ -35,7 +42,8 @@ class CustomCalendar extends Component {
     this.fetchResources();
     this.fetchFutureBookings();
   }
-    fetchFutureBookings = async () => {
+
+  fetchFutureBookings = async () => {
     const token = localStorage.getItem("authToken");
       try {
         const response = await fetch(
@@ -60,7 +68,7 @@ class CustomCalendar extends Component {
           start: booking.fromDateTime.replace("T", " "), // Trasforma in formato richiesto
           end: booking.toDateTime.replace("T", " "),
           resourceId: `resource${booking.resource.resourceId}`,
-          title: booking.title,
+          title:  booking.title + " - " + booking.user?.username,
           bgColor: booking.resource.areaInfo.colorHEX || "#FFD700", // Usa un colore predefinito se non disponibile
         }));
 
@@ -78,14 +86,15 @@ class CustomCalendar extends Component {
           description:
             "Non è stato possibile caricare gli eventi. Riprova più tardi.",
         });
+        window.location.href = "/login";
       }
     };
-    updateSchedulerEvents = (schedulerData) => {
+
+  updateSchedulerEvents = (schedulerData) => {
         const { transformedEvents } = this.state; // Lista degli eventi dallo stato
         schedulerData.setEvents(transformedEvents); // Imposta gli eventi nello scheduler
         this.setState({ schedulerData }); // Aggiorna lo stato
     };
-
 
   fetchResources = async () => {
     const token = localStorage.getItem("authToken");
@@ -153,36 +162,9 @@ class CustomCalendar extends Component {
     }
   };
 
-  newEvent = (schedulerData, slotId, slotName, start, end, type, item) => {
-    const hasOverlap = schedulerData.events.some((event) => {
-      if (event.resourceId === slotId) {
-        return (
-          (start >= event.start && start < event.end) ||
-          (end > event.start && end <= event.end) ||
-          (start <= event.start && end >= event.end)
-        );
-      }
-      return false;
-    });
-
-    if (hasOverlap) {
-      notification.warning({
-        message: "Attenzione",
-        description: "Questa risorsa è già riservata.",
-      });
-      return;
-    }
-
-    const newEvent = {
-      title: "New event you just created",
-      start,
-      end,
-      resourceId: slotId,
-      bgColor: "purple",
-    };
-    console.log(newEvent);
-    const { navigate } = this.props; // Navigate passato dalle props
-    navigate("/reservation", { state: { eventData: newEvent } });
+  toggleExpandFunc = (schedulerData, slotId) => {
+    schedulerData.toggleExpandStatus(slotId);
+    this.setState({ viewModel: schedulerData });
   };
 
   prevClick = (schedulerData) => {
@@ -197,21 +179,87 @@ class CustomCalendar extends Component {
     this.setState({ schedulerData });
   };
 
-  onSelectDate = (schedulerData, date) => {
-    schedulerData.setDate(date);
-    this.updateSchedulerEvents(schedulerData);
-    this.setState({ schedulerData });
-  };
-
   onViewChange = (schedulerData, view) => {
     schedulerData.setViewType(view.viewType, view.showAgenda, view.isEventPerspective);
     this.updateSchedulerEvents(schedulerData);
     this.setState({ schedulerData });
   };
 
-  render() {
-    const { schedulerData, loading, resources } = this.state;
+  onEventClick = (schedulerData, event) => {
+    // Verifica se l'utente è un amministratore
+    const isAdmin = localStorage.getItem("role") === "ROLE_ADMIN"; // Esempio, verifica che l'utente sia ADMIN
+    console.log(localStorage.getItem("role"))
+    if (!isAdmin) {
+      notification.warning({
+        message: "Permesso negato",
+        description: "Non sei autorizzato a eliminare gli eventi.",
+      });
+      return;
+    }
 
+    // Chiedi conferma all'utente
+    notification.confirm({
+      title: "Conferma eliminazione",
+      content: "Sei sicuro di voler eliminare questo evento?",
+      onOk: async () => {
+        const token = localStorage.getItem("authToken");
+
+        try {
+          // Elimina l'evento dal backend
+          const response = await fetch(
+            `http://localhost:8080/BookingRooms/api/v1/bookings/${event.id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Errore durante l'eliminazione dell'evento.");
+          }
+
+          // Aggiorna lo stato del calendario rimuovendo l'evento locale
+          const { schedulerData, transformedEvents } = this.state;
+          const updatedEvents = transformedEvents.filter(
+            (e) => e.id !== event.id
+          );
+          schedulerData.setEvents(updatedEvents); // Aggiorna gli eventi visibili
+          this.setState({ schedulerData, transformedEvents: updatedEvents });
+
+          notification.success({
+            message: "Evento eliminato",
+            description: "L'evento è stato rimosso con successo.",
+          });
+        } catch (error) {
+          console.error("Errore durante l'eliminazione:", error);
+          notification.error({
+            message: "Errore",
+            description: "Non è stato possibile eliminare l'evento. Riprova più tardi.",
+          });
+        }
+      },
+      onCancel: () => {
+        notification.info({
+          message: "Eliminazione annullata",
+          description: "L'evento non è stato eliminato.",
+        });
+      },
+    });
+  };
+
+  onSelectDate = (schedulerData, date) => {
+    schedulerData.setDate(date);
+    this.updateSchedulerEvents(schedulerData);
+    this.setState({
+      viewModel: schedulerData,
+    });
+  };
+
+  render() {
+    const { schedulerData, loading } = this.state;
     return (
       <div>
         {loading ? (
@@ -224,17 +272,12 @@ class CustomCalendar extends Component {
                 schedulerData={schedulerData}
                 prevClick={this.prevClick}
                 nextClick={this.nextClick}
-                onSelectDate={this.onSelectDate}
                 onViewChange={this.onViewChange}
-                newEvent={this.newEvent}
+                toggleExpandFunc={this.toggleExpandFunc}
+                onEventClick={this.onEventClick}
+                onSelectDate={this.onSelectDate}
               />
             </div>
-            <h3>Risorse Caricate:</h3>
-            <ul>
-              {resources.map((resource) => (
-                <li key={resource.id}>{resource.name}</li>
-              ))}
-            </ul>
           </div>
         )}
       </div>
@@ -242,4 +285,4 @@ class CustomCalendar extends Component {
   }
 }
 
-export default CustomCalendar;
+export default ReadOnlyCalendar;

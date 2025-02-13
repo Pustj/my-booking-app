@@ -7,12 +7,22 @@ const NumberUsers = () => {
   const [upcomingBookings, setUpcomingBookings] = useState(null); // Stato per il numero di prenotazioni imminenti
   const [loadingActiveUsers, setLoadingActiveUsers] = useState(true); // Stato di caricamento per utenti attivi
   const [loadingBookings, setLoadingBookings] = useState(true); // Stato di caricamento per prenotazioni imminenti
-
+  const token = localStorage.getItem("authToken");
   // Funzione per ottenere il numero di utenti attivi
   useEffect(() => {
     const fetchActiveUsers = async () => {
+
       try {
-        const response = await fetch("http://localhost:8080/BookingRooms/api/v1/statistic/usersActive");
+        const response = await fetch(
+                "http://localhost:8080/BookingRooms/api/v1/statistic/usersActive",
+                {
+                          method: "GET",
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                          },
+                }
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -30,15 +40,24 @@ const NumberUsers = () => {
     };
 
     fetchActiveUsers();
-  }, []); // Chiamata API al montaggio del componente
+  }, [token]); // Chiamata API al montaggio del componente
 
   // Funzione per ottenere il numero di prenotazioni imminenti
   useEffect(() => {
     const fetchUpcomingBookings = async () => {
       try {
-        const response = await fetch("http://localhost:8080/BookingRooms/api/v1/statistic/upcomingBookings");
+        const response = await fetch(
+                        "http://localhost:8080/BookingRooms/api/v1/statistic/upcomingBookings",
+                        {
+                                  method: "GET",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                    Authorization: `Bearer ${token}`,
+                                  },
+                        }
+        );
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          window.location.href = "/login";
         }
         const data = await response.json(); // Supponendo che l'API restituisca semplicemente un numero
         setUpcomingBookings(data); // Imposta il valore nello stato
@@ -54,7 +73,7 @@ const NumberUsers = () => {
     };
 
     fetchUpcomingBookings();
-  }, []); // Chiamata API al montaggio del componente
+  }, [token]); // Chiamata API al montaggio del componente
 
   return (
     <Row gutter={16}>
