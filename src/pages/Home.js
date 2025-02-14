@@ -8,8 +8,10 @@ import AreaTable from "../components/area/AreaTable";
 import ResourceForm from "../components/resource/ResourceForm";
 import ResourceTable from "../components/resource/ResourceTable";
 import EventForm from "../components/reservation/EventForm";
+import EventFormFiltered from "../components/reservation/EventFormFiltered";
 import CustomCalendarWrapper from "../components/reservation/CustomCalendarWrapper";
 import Dashboard from "../pages/Dashboard";
+import DashboardDemo from "../pages/DashboardDemo";
 import { AuthProvider, useAuth } from '../AuthContext';
 import {jwtDecode} from 'jwt-decode';
 import '../Deseo.css';
@@ -25,6 +27,9 @@ import {
   BorderOutlined,
   LogoutOutlined,
   AppstoreAddOutlined,
+  HarmonyOSOutlined,
+  HeartOutlined,
+  ScheduleOutlined,
 } from '@ant-design/icons';
 
 
@@ -125,22 +130,26 @@ const {
                   children: [
                         { key: '31', label: <Link to="/areas">Lista area/zone</Link>, icon: <BorderlessTableOutlined /> },
                         { key: '32', label: <Link to="/create/area">Crea area/zona</Link>, icon: <AppstoreAddOutlined /> },
-                        { key: '33', label: <Link to="/resources">Lista risorse</Link>, icon: <AppstoreAddOutlined /> },
+                        { key: '33', label: <Link to="/resources">Lista risorse</Link>, icon: <BorderlessTableOutlined /> },
                         { key: '34', label: <Link to="/create/resource">Crea risorsa</Link>, icon: <AppstoreAddOutlined /> },
                   ],
                 },]: []),
                 {
                   key: '4',
-                  icon: <CarryOutOutlined />,
-                  label: "Prenotazioni",
+                  icon: <HarmonyOSOutlined />,
+                  label: "Massaggi",
                   children: [
-                        { key: '41', label: <Link to="/booknow">Prenota ora</Link>, icon: <AppstoreAddOutlined /> },
-                        { key: '42', label: 'Option 6' },
-                        { key: '43', label: 'Option 7' },
-                        { key: '44', label: 'Option 8' },
+                        { key: '41', label: <Link to="/massages/booknow">Prenota ora</Link>, icon: <ScheduleOutlined  /> },
                   ],
                 },
-
+                {
+                  key: '5',
+                  icon: <HeartOutlined />,
+                  label: "Pilates",
+                  children: [
+                        { key: '51', label: <Link to="/pilates/booknow">Prenota ora</Link>, icon: <ScheduleOutlined  /> },
+                  ],
+                },
               ]}
             />
           </Sider>
@@ -186,7 +195,7 @@ const {
             >
             <AuthProvider>
                 <Routes>
-                  <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+                  <Route path="/dashboard" element={<PrivateRoute><DashboardDemo /></PrivateRoute>} />
                   <Route path="/users" element={<PrivateRoute><UserTable /></PrivateRoute>} />
                   <Route path="/create/user" element={<PrivateRoute><UserForm /></PrivateRoute>} />
                   <Route path="/update/user" element={<PrivateRoute><UserForm /></PrivateRoute>} />
@@ -197,7 +206,10 @@ const {
                   <Route path="/update/resource" element={<PrivateRoute><ResourceForm /></PrivateRoute>} />
                   <Route path="/resources" element={<PrivateRoute><ResourceTable /></PrivateRoute>} />
                   <Route path="/reservation" element={<PrivateRoute><EventForm /></PrivateRoute>} />
-                  <Route path="/booknow" element={<PrivateRoute><CustomCalendarWrapper /></PrivateRoute>} />
+                  <Route path="/reservationFiltered" element={<PrivateRoute><EventFormFiltered /></PrivateRoute>} />
+                  <Route path="/pilates/booknow" element={<PrivateRoute><CustomCalendarWrapper calendarType="pilates" /></PrivateRoute>} />
+                  <Route path="/massages/booknow" element={<PrivateRoute><CustomCalendarWrapper calendarType="massages" /></PrivateRoute>} />
+                  <Route path="/booknow" element={<PrivateRoute><CustomCalendarWrapper/></PrivateRoute>} />
                 </Routes>
             </AuthProvider>
             </Content>

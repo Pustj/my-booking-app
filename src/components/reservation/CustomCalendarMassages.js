@@ -8,7 +8,7 @@ import "../../calendar.css";
 
 dayjs.locale("it");
 
-class CustomCalendar extends Component {
+class CustomCalendarMassages extends Component {
   constructor(props) {
     super(props);
 
@@ -97,7 +97,7 @@ class CustomCalendar extends Component {
     const token = localStorage.getItem("authToken");
 
     try {
-      const response = await fetch("http://localhost:8080/BookingRooms/api/v1/areas-with-resources", {
+      const response = await fetch("http://localhost:8080/BookingRooms/api/v1/areas-with-resources/massages", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -324,4 +324,4 @@ class CustomCalendar extends Component {
   }
 }
 
-export default CustomCalendar;
+export default CustomCalendarMassages;

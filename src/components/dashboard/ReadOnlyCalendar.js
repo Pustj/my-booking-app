@@ -114,23 +114,32 @@ class ReadOnlyCalendar extends Component {
 
         const res = await response.json();
         res.forEach((area) => {
-        // Aggiungi l'area come gruppo
-        resources.push({
-          id: `area${area.areaId}`, // ID unico dell'area
-          name: area.title,         // Nome dell'area (es. "Stanza Rossa")
-          title: area.title,        // Titolo dell'area
-          groupOnly: true,          // Imposta come gruppo
-        });
+            // Aggiungi l'area come gruppo
+            resources.push({
+              id: `area${area.areaId}`, // ID unico dell'area
+              name: area.title,         // Nome dell'area (es. "Stanza Rossa")
+              title: area.title,        // Titolo dell'area
+              groupOnly: true,          // Imposta come gruppo
+            });
 
-        // Aggiungi le risorse dell'area come figli
-        area.resources.forEach((resource) => {
-          resources.push({
-            id: `resource${resource.resourceId}`,           // ID unico della risorsa
-            name: resource.name,                           // Nome della risorsa
-            parentId: `area${resource.areaInfo.areaId}`,                // Collega alla sua area come parentId
-          });
-        });
+            // Aggiungi le risorse dell'area come figli
+            area.resources.forEach((resource) => {
+              resources.push({
+                id: `resource${resource.resourceId}`,           // ID unico della risorsa
+                name: resource.name,                           // Nome della risorsa
+                parentId: `area${resource.areaInfo.areaId}`,                // Collega alla sua area come parentId
+              });
+            });
 
+            // Separare risorse con e senza `parentId`.
+            const withParent = resources.filter((resource) => resource.parentId);
+            const withoutParent = resources.filter((resource) => !resource.parentId);
+
+            // Ordinare solo le risorse con `parentId` per il nome.
+            withParent.sort((a, b) => a.name.localeCompare(b.name));
+
+            // Combinare mantenendo l'ordine: prima quelle senza `parentId`, poi quelle ordinate con `parentId`.
+            const sortedResources = [...withoutParent, ...withParent];
 
 
         // Mappa le risorse dall'API
@@ -142,7 +151,7 @@ class ReadOnlyCalendar extends Component {
         // Aggiorna lo stato e le risorse nello scheduler
         this.setState({ resources, loading: false }, () => {
           const { schedulerData } = this.state;
-          schedulerData.setResources(resources); // Imposta le risorse nello scheduler
+          schedulerData.setResources(sortedResources); // Imposta le risorse nello scheduler
           this.setState({ schedulerData }); // Aggiorna il modello con le modifiche
         });
       });
