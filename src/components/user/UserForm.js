@@ -40,7 +40,7 @@ const UserForm = () => {
 
 
   const onFinish = async (values) => {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
        if (isEditing) {
            const payload = {

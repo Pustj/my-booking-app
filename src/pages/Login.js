@@ -30,8 +30,12 @@ const onFinish = async (values) => {
     // Gestisci il caso di successo
     console.log('Login successful:', data);
 
-    // Esempio: Salva il token di autenticazione
-    localStorage.setItem('authToken', data.token);
+    if (values.remember) {
+      localStorage.setItem('authToken', data.token);
+    } else {
+      sessionStorage.setItem('authToken', data.token);
+    }
+
 
     // Reindirizza l'utente alla pagina home
     window.location.href = '/dashboard';

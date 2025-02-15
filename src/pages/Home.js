@@ -47,7 +47,7 @@ const [userName, setUserName] = useState("Anonimo");
 const [userRole, setUserRole] = useState(null);
 
 useEffect(() => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
     if (!token) {
       console.error("Token non trovato. Reindirizzamento al login.");

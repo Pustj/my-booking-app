@@ -17,7 +17,7 @@ useEffect(() => {
   const fetchRoles = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       const response = await fetch("http://localhost:8080/BookingRooms/api/v1/roles", {
         method: "GET",
         headers: {

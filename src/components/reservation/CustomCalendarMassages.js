@@ -41,7 +41,7 @@ class CustomCalendarMassages extends Component {
     this.fetchFutureBookings();
   }
     fetchFutureBookings = async () => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       try {
         const response = await fetch(
           "http://localhost:8080/BookingRooms/api/v1/bookings/future",
@@ -94,7 +94,7 @@ class CustomCalendarMassages extends Component {
 
 
   fetchResources = async () => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
     try {
       const response = await fetch("http://localhost:8080/BookingRooms/api/v1/areas-with-resources/massages", {
@@ -247,7 +247,7 @@ class CustomCalendarMassages extends Component {
         title: "Conferma eliminazione",
         content: "Sei sicuro di voler eliminare questo evento?",
         onOk: async () => {
-          const token = localStorage.getItem("authToken");
+          const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
           try {
             // Elimina l'evento dal backend

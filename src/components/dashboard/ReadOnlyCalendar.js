@@ -44,7 +44,7 @@ class ReadOnlyCalendar extends Component {
   }
 
   fetchFutureBookings = async () => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       try {
         const response = await fetch(
           "http://localhost:8080/BookingRooms/api/v1/bookings/future",
@@ -97,7 +97,7 @@ class ReadOnlyCalendar extends Component {
     };
 
   fetchResources = async () => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
     try {
       const response = await fetch("http://localhost:8080/BookingRooms/api/v1/areas-with-resources", {
@@ -211,7 +211,7 @@ class ReadOnlyCalendar extends Component {
       title: "Conferma eliminazione",
       content: "Sei sicuro di voler eliminare questo evento?",
       onOk: async () => {
-        const token = localStorage.getItem("authToken");
+        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
         try {
           // Elimina l'evento dal backend

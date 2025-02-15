@@ -12,7 +12,7 @@ const localizer = dayjsLocalizer(dayjs)
 
 const CalendarTest = () => {
   const [eventsData, setEventsData] = useState([]); // Stato iniziale vuoto per gli eventi
-  const token = localStorage.getItem("authToken"); // Recupera il token dal localStorage
+ const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
   const navigate = useNavigate();
 
   // Funzione per recuperare i dati dall'API

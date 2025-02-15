@@ -14,7 +14,7 @@ const AreaTable = () => {
   const [expandedRows, setExpandedRows] = useState([]); // Lista delle righe espanse
   const navigate = useNavigate(); // Hook per navigare
 
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
   // Recupera le aree da un endpoint
   const fetchAreas = useCallback(async () => {
@@ -78,7 +78,7 @@ const AreaTable = () => {
 
   // Funzione per eliminare un utente
     const deleteArea = async (areaId) => {
-      const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       const url = `http://localhost:8080/BookingRooms/api/v1/delete/area/${areaId}`;
 
       try {

@@ -79,7 +79,7 @@ const UsersTable = () => {
 
   // Funzione per eliminare un utente
   const deleteUser = async (userId) => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     const url = `http://localhost:8080/BookingRooms/api/v1/delete/user/${userId}`;
 
     try {

@@ -18,7 +18,7 @@ const EventForm = () => {
 
   // Funzione per chiamare l'API e ottenere la lista delle risorse
   const fetchResources = useCallback(async () => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     try {
       const startDate = dayjs(eventData?.start).format("YYYY-MM-DDTHH:mm");
       const endDate = dayjs(eventData?.end).format("YYYY-MM-DDTHH:mm");
@@ -68,7 +68,7 @@ const EventForm = () => {
   const onFinish = async (values) => {
     const { title, dateRange, areaId, resources } = values; // Ottieni i valori dal form
     const [startDate, endDate] = dateRange;
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     const decoded = jwtDecode(token); // Decodifica il token
     const data = {
       title,

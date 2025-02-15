@@ -15,7 +15,7 @@ const ResourceTable = () => {
   const navigate = useNavigate(); // Hook per navigare
 
   const fetchResources = async () => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     try {
       const response = await fetch("http://localhost:8080/BookingRooms/api/v1/resources", {
         method: "GET",
@@ -80,7 +80,7 @@ const ResourceTable = () => {
 
   // Funzione per eliminare un utente
   const deleteResource = async (resourceId) => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     const url = `http://localhost:8080/BookingRooms/api/v1/delete/resource/${resourceId}`;
 
     try {

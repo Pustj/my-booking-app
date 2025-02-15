@@ -29,7 +29,7 @@ const ResourceForm = () => {
   // Recupero delle aree al caricamento del componente
   React.useEffect(() => {
     const fetchAreas = async () => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       try {
         const response = await fetch('http://localhost:8080/BookingRooms/api/v1/areas', {
                 headers: {
@@ -73,7 +73,7 @@ const ResourceForm = () => {
   }, [resourceData, isEditing, form]);
 
   const onFinish = async (values) => {
-    const token = localStorage.getItem("authToken");
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
     const payload = isEditing
       ? {

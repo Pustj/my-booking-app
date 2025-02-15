@@ -7,7 +7,7 @@ const NumberUsers = () => {
   const [upcomingBookings, setUpcomingBookings] = useState(null); // Stato per il numero di prenotazioni imminenti
   const [loadingActiveUsers, setLoadingActiveUsers] = useState(true); // Stato di caricamento per utenti attivi
   const [loadingBookings, setLoadingBookings] = useState(true); // Stato di caricamento per prenotazioni imminenti
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
   // Funzione per ottenere il numero di utenti attivi
   useEffect(() => {
     const fetchActiveUsers = async () => {
