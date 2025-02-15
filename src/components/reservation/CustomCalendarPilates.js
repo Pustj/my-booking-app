@@ -86,6 +86,7 @@ class CustomCalendarPilates extends Component {
         window.location.href = "/login";
       }
     };
+
     updateSchedulerEvents = (schedulerData) => {
         const { transformedEvents } = this.state; // Lista degli eventi dallo stato
         schedulerData.setEvents(transformedEvents); // Imposta gli eventi nello scheduler

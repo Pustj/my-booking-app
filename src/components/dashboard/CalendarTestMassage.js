@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Calendar, dayjsLocalizer  } from "react-big-calendar";
 import { notification } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ const CalendarTestMassage = () => {
   const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');  const navigate = useNavigate();
 
   // Funzione per recuperare i dati dall'API
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       const response = await fetch("http://localhost:8080/BookingRooms/api/v1/bookings/futureMassages", {
         method: "GET",
@@ -45,15 +45,15 @@ const CalendarTestMassage = () => {
       console.error("Errore durante il caricamento degli eventi:", error);
       alert("Errore durante il caricamento degli eventi. Riprovare più tardi.");
     }
-  };
+  }, [token]);
 
   // Effettua la chiamata API al caricamento iniziale del componente
   useEffect(() => {
     fetchEvents();
-  }, []); // L'array vuoto come dipendenza assicura che l'effetto venga eseguito una sola volta
+  }, [fetchEvents]); // L'array vuoto come dipendenza assicura che l'effetto venga eseguito una sola volta
 
   // Funzione per gestire la selezione di una nuova slot
-  const handleSelect = ({ start, end }) => {
+  /*const handleSelect = ({ start, end }) => {
     console.log(start);
     console.log(end);
     const title = window.prompt("New Event name");
@@ -66,7 +66,7 @@ const CalendarTestMassage = () => {
           title,
         },
       ]);
-  };
+  };*/
 
   const newEvent = (event) => {
     const now = dayjs();

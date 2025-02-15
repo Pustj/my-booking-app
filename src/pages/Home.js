@@ -10,7 +10,7 @@ import ResourceTable from "../components/resource/ResourceTable";
 import EventForm from "../components/reservation/EventForm";
 import EventFormFiltered from "../components/reservation/EventFormFiltered";
 import CustomCalendarWrapper from "../components/reservation/CustomCalendarWrapper";
-import Dashboard from "../pages/Dashboard";
+//import Dashboard from "../pages/Dashboard";
 import DashboardDemo from "../pages/DashboardDemo";
 import { AuthProvider, useAuth } from '../AuthContext';
 import {jwtDecode} from 'jwt-decode';
@@ -20,7 +20,6 @@ import {
   DashboardOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  CarryOutOutlined,
   UserOutlined,
   UserAddOutlined,
   BorderlessTableOutlined,

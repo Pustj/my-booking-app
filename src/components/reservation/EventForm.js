@@ -121,23 +121,71 @@ const EventForm = () => {
     };
 
     const handleToggleAll = (checked) => {
-    setToggleAll(checked); // Aggiorna lo stato globale
+        setToggleAll(checked); // Aggiorna lo stato globale
 
-    // Usa un oggetto per costruire i valori delle risorse
-    const updatedStates = resources.reduce((acc, resource) => {
-      const isDisabled = String(resource.resourceId) === eventData.resourceId.replace("resource", "");
-      acc[resource.resourceId] = isDisabled ? true : checked; // Assegna come oggetto { resourceId: value }
-      return acc;
-    }, {});
-    console.log(updatedStates)
-    form.setFieldsValue({ resources: updatedStates }); // Aggiorna i valori del form
-    console.log(resources)
+        // Usa un oggetto per costruire i valori delle risorse
+        const updatedStates = resources.reduce((acc, resource) => {
+            acc[resource.resourceId] = checked; // Assegna il valore `checked` (true/false) a tutte le risorse
+            return acc;
+        }, {});
+        form.setFieldsValue({
+            resources: updatedStates, // Imposta il nuovo stato delle risorse
+        });
   };
   // Funzione "Annulla"
   const handleCancel = () => {
     form.resetFields(); // Resetta i campi
     navigate("/dashboard");
   };
+
+  const renderResourceColumns = () => {
+    // Raggruppa le risorse per areaInfo.title
+    const groupedResources = resources.reduce((acc, resource) => {
+      const title = resource.areaInfo?.title || "Senza titolo"; // Chiave per il raggruppamento
+      if (!acc[title]) {
+        acc[title] = []; // Crea un nuovo array se la chiave non esiste
+      }
+      acc[title].push(resource); // Aggiungi la risorsa alla chiave corrente
+      return acc;
+    }, {});
+
+    // Rendi ogni gruppo in una colonna
+    return Object.entries(groupedResources).map(([title, resourceGroup]) => (
+      <Col key={title} span={8} style={{ padding: "10px" }}>
+        <h3 style={{ textAlign: "left", color: "#333", marginBottom: "20px" }}>
+            {title}
+        </h3>
+        {resourceGroup.map((resource) => (
+          <Form.Item
+            key={resource.resourceId}
+            name={["resources", resource.resourceId]} // Nome per il binding nel form
+            label={
+              <>
+                <strong style={{ color: resource.areaInfo?.colorHEX }}>
+                  {resource.name}
+                </strong>
+              </>
+            }
+            valuePropName="checked"
+          >
+            <Switch
+              checkedChildren={<CheckOutlined />}
+              unCheckedChildren={<CloseOutlined />}
+            />
+          </Form.Item>
+        ))}
+      </Col>
+    ));
+  };
+
+   const groupedResources = resources.reduce((acc, resource) => {
+     const title = resource.areaInfo?.title || "Senza titolo"; // Gestisce anche titoli mancanti
+     if (!acc[title]) {
+       acc[title] = []; // Inizializza l'array per il title
+     }
+     acc[title].push(resource); // Aggiungi la risorsa al gruppo
+     return acc;
+   }, {});
 
   return (
     <AntdApp>
@@ -193,7 +241,7 @@ const EventForm = () => {
         </h3>
         <Form.Item
              name="recurrence"
-             label="Tipo di Ricorrenza"
+             label=""
              initialValue="none" // Imposta un valore predefinito
         >
              <Radio.Group
@@ -226,13 +274,20 @@ const EventForm = () => {
                 unCheckedChildren={<CloseOutlined />}
             />
         </Form.Item>
-        {/* Switch per ogni risorsa */}
+        <Row gutter={16} align="top">
+          {renderResourceColumns()}
+        </Row>
+
+        {/* Switch per ogni risorsa
         {resources.map((resource) => (
           <Form.Item
             key={resource.resourceId}
             name={["resources", resource.resourceId]} // Nome per mantenere la struttura { id: true/false }
             label={<>
-                    <strong>{resource.areaInfo?.title}</strong> - {resource.name}
+                    <strong style={{ color: resource.areaInfo?.colorHEX }}>
+                        {resource.areaInfo?.title}
+                    </strong>
+                    {" - "} {resource.name}
                    </>
 }
             valuePropName="checked" // Permette il binding booleano con lo Switch
@@ -243,7 +298,7 @@ const EventForm = () => {
 
             />
           </Form.Item>
-        ))}
+        ))}*/}
 
         {/* Bottoni */}
         <Form.Item style={{ marginTop: "50px" }}>
