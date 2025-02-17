@@ -1,10 +1,11 @@
 import React, { Component, createRef } from "react";
-import { notification } from "antd";
+import { notification, Modal } from "antd";
 import { Scheduler, SchedulerData, ViewType, DATE_FORMAT } from "react-big-schedule";
 import dayjs from "dayjs";
 import "dayjs/locale/it";
 import "react-big-schedule/dist/css/style.css";
 import "../../calendar.css";
+import {jwtDecode} from 'jwt-decode';
 
 dayjs.locale("it");
 
@@ -86,9 +87,12 @@ class CustomCalendarMassages extends Component {
         window.location.href = "/login";
       }
     };
+
     updateSchedulerEvents = (schedulerData) => {
         const { transformedEvents } = this.state; // Lista degli eventi dallo stato
         schedulerData.setEvents(transformedEvents); // Imposta gli eventi nello scheduler
+        console.log("Eventi passati:", transformedEvents);
+
         this.setState({ schedulerData }); // Aggiorna lo stato
     };
 
@@ -232,8 +236,10 @@ class CustomCalendarMassages extends Component {
 
   onEventClick = (schedulerData, event) => {
       // Verifica se l'utente è un amministratore
-      const isAdmin = localStorage.getItem("role") === "ROLE_ADMIN"; // Esempio, verifica che l'utente sia ADMIN
-      console.log(localStorage.getItem("role"))
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+      const decoded = jwtDecode(token);
+      const isAdmin = decoded.role === "ROLE_ADMIN"; // Esempio, verifica che l'utente sia ADMIN
+
       if (!isAdmin) {
         notification.warning({
           message: "Permesso negato",
@@ -243,16 +249,15 @@ class CustomCalendarMassages extends Component {
       }
 
       // Chiedi conferma all'utente
-      notification.confirm({
+      Modal.confirm({
         title: "Conferma eliminazione",
         content: "Sei sicuro di voler eliminare questo evento?",
         onOk: async () => {
-          const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
           try {
             // Elimina l'evento dal backend
             const response = await fetch(
-              `http://localhost:8080/BookingRooms/api/v1/bookings/${event.id}`,
+              `http://localhost:8080/BookingRooms/api/v1/delete/booking/${event.id}`,
               {
                 method: "DELETE",
                 headers: {
@@ -295,6 +300,7 @@ class CustomCalendarMassages extends Component {
       });
     };
 
+
   render() {
     const { schedulerData, loading } = this.state;
 
@@ -314,7 +320,7 @@ class CustomCalendarMassages extends Component {
                 onViewChange={this.onViewChange}
                 newEvent={this.newEvent}
                 toggleExpandFunc={this.toggleExpandFunc}
-                onEventClick={this.onEventClick}
+                eventItemClick={this.onEventClick}
               />
             </div>
           </div>

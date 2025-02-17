@@ -1,10 +1,11 @@
 import React, { Component, createRef } from "react";
-import { notification } from "antd";
+import { notification, Modal } from "antd";
 import { Scheduler, SchedulerData, ViewType, DATE_FORMAT } from "react-big-schedule";
 import dayjs from "dayjs";
 import "dayjs/locale/it";
 import "react-big-schedule/dist/css/style.css";
 import "../../calendar.css";
+import {jwtDecode} from 'jwt-decode';
 
 dayjs.locale("it");
 
@@ -231,69 +232,70 @@ class CustomCalendar extends Component {
   };
 
   onEventClick = (schedulerData, event) => {
-      // Verifica se l'utente è un amministratore
-      const isAdmin = localStorage.getItem("role") === "ROLE_ADMIN"; // Esempio, verifica che l'utente sia ADMIN
-      console.log(localStorage.getItem("role"))
-      if (!isAdmin) {
-        notification.warning({
-          message: "Permesso negato",
-          description: "Non sei autorizzato a eliminare gli eventi.",
-        });
-        return;
-      }
+        // Verifica se l'utente è un amministratore
+        const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+        const decoded = jwtDecode(token);
+        const isAdmin = decoded.role === "ROLE_ADMIN"; // Esempio, verifica che l'utente sia ADMIN
 
-      // Chiedi conferma all'utente
-      notification.confirm({
-        title: "Conferma eliminazione",
-        content: "Sei sicuro di voler eliminare questo evento?",
-        onOk: async () => {
-          const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-
-          try {
-            // Elimina l'evento dal backend
-            const response = await fetch(
-              `http://localhost:8080/BookingRooms/api/v1/bookings/${event.id}`,
-              {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-
-            if (!response.ok) {
-              throw new Error("Errore durante l'eliminazione dell'evento.");
-            }
-
-            // Aggiorna lo stato del calendario rimuovendo l'evento locale
-            const { schedulerData, transformedEvents } = this.state;
-            const updatedEvents = transformedEvents.filter(
-              (e) => e.id !== event.id
-            );
-            schedulerData.setEvents(updatedEvents); // Aggiorna gli eventi visibili
-            this.setState({ schedulerData, transformedEvents: updatedEvents });
-
-            notification.success({
-              message: "Evento eliminato",
-              description: "L'evento è stato rimosso con successo.",
-            });
-          } catch (error) {
-            console.error("Errore durante l'eliminazione:", error);
-            notification.error({
-              message: "Errore",
-              description: "Non è stato possibile eliminare l'evento. Riprova più tardi.",
-            });
-          }
-        },
-        onCancel: () => {
-          notification.info({
-            message: "Eliminazione annullata",
-            description: "L'evento non è stato eliminato.",
+        if (!isAdmin) {
+          notification.warning({
+            message: "Permesso negato",
+            description: "Non sei autorizzato a eliminare gli eventi.",
           });
-        },
-      });
-    };
+          return;
+        }
+
+        // Chiedi conferma all'utente
+        Modal.confirm({
+          title: "Conferma eliminazione",
+          content: "Sei sicuro di voler eliminare questo evento?",
+          onOk: async () => {
+
+            try {
+              // Elimina l'evento dal backend
+              const response = await fetch(
+                `http://localhost:8080/BookingRooms/api/v1/delete/booking/${event.id}`,
+                {
+                  method: "DELETE",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+
+              if (!response.ok) {
+                throw new Error("Errore durante l'eliminazione dell'evento.");
+              }
+
+              // Aggiorna lo stato del calendario rimuovendo l'evento locale
+              const { schedulerData, transformedEvents } = this.state;
+              const updatedEvents = transformedEvents.filter(
+                (e) => e.id !== event.id
+              );
+              schedulerData.setEvents(updatedEvents); // Aggiorna gli eventi visibili
+              this.setState({ schedulerData, transformedEvents: updatedEvents });
+
+              notification.success({
+                message: "Evento eliminato",
+                description: "L'evento è stato rimosso con successo.",
+              });
+            } catch (error) {
+              console.error("Errore durante l'eliminazione:", error);
+              notification.error({
+                message: "Errore",
+                description: "Non è stato possibile eliminare l'evento. Riprova più tardi.",
+              });
+            }
+          },
+          onCancel: () => {
+            notification.info({
+              message: "Eliminazione annullata",
+              description: "L'evento non è stato eliminato.",
+            });
+          },
+        });
+      };
 
   render() {
     const { schedulerData, loading } = this.state;
@@ -314,7 +316,7 @@ class CustomCalendar extends Component {
                 onViewChange={this.onViewChange}
                 newEvent={this.newEvent}
                 toggleExpandFunc={this.toggleExpandFunc}
-                onEventClick={this.onEventClick}
+                eventItemClick={this.onEventClick}
               />
             </div>
           </div>
