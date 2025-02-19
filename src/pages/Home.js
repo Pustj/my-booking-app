@@ -10,7 +10,7 @@ import ResourceTable from "../components/resource/ResourceTable";
 import EventForm from "../components/reservation/EventForm";
 import EventFormFiltered from "../components/reservation/EventFormFiltered";
 import CustomCalendarWrapper from "../components/reservation/CustomCalendarWrapper";
-//import Dashboard from "../pages/Dashboard";
+import Dashboard from "../pages/Dashboard";
 import DashboardDemo from "../pages/DashboardDemo";
 import { AuthProvider, useAuth } from '../AuthContext';
 import {jwtDecode} from 'jwt-decode';
@@ -149,6 +149,14 @@ const {
                         { key: '51', label: <Link to="/pilates/booknow">Prenota ora</Link>, icon: <ScheduleOutlined  /> },
                   ],
                 },
+                {
+                    key: '6',
+                    icon: <HeartOutlined />,
+                    label: "Statistiche",
+                    children: [
+                        { key: '61', label: <Link to="/statistics">Statistiche</Link>, icon: <ScheduleOutlined  /> },
+                    ],
+                },
               ]}
             />
           </Sider>
@@ -209,6 +217,7 @@ const {
                   <Route path="/pilates/booknow" element={<PrivateRoute><CustomCalendarWrapper calendarType="pilates" /></PrivateRoute>} />
                   <Route path="/massages/booknow" element={<PrivateRoute><CustomCalendarWrapper calendarType="massages" /></PrivateRoute>} />
                   <Route path="/booknow" element={<PrivateRoute><CustomCalendarWrapper/></PrivateRoute>} />
+                  <Route path="/statistics" element={<PrivateRoute><Dashboard/></PrivateRoute>} />
                 </Routes>
             </AuthProvider>
             </Content>
